@@ -1,0 +1,75 @@
+\documentclass[border=0.2cm]{standalone}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+
+\usepackage{tikz}
+\usepackage{circuitikz}
+\usepackage{siunitx}
+
+\usetikzlibrary{arrows}
+\usetikzlibrary{calc}
+\usetikzlibrary{decorations.pathreplacing,angles,quotes}
+
+\begin{document}
+
+\ctikzset{
+    logic ports=european,
+    logic ports/scale=1.0,
+    tripoles/european not symbol=ieee circle,
+    resistors/scale=0.7,
+    capacitors/scale=0.6,
+    diodes/scale=0.6,
+}
+
+\begin{circuitikz}[european, straight voltages]
+    \draw (0,0) node[not port] (not1) {};
+    \draw (0,-4) node[not port] (not2) {};
+
+    \draw ($(not1.east)!.5!(not1.west)$) ++(0, 1) node[] {\textbf{\Large 7404}};
+
+    % 7404 pinout guides
+    \draw (not1.in)  node[above] {$1$};
+    \draw (not1.out) node[above] {$2$};
+    \draw (not2.in)  node[below] {$3$};
+    \draw (not2.out) node[below] {$4$};
+
+    % Juctions arout the NOTs
+    \draw (not1.in)  to[short, -*] ++(-0.5, 0) coordinate (j0);
+    \draw (not1.out) to[short, -*] ++(+0.5, 0) coordinate (j1);
+    \draw (not2.in)  to[short, -*] ++(-0.5, 0) coordinate (j2);
+    \draw (not2.out) to[short, -*] ++(+0.5, 0) coordinate (j3);
+
+    % Crossover with capacitors
+    \draw (j0) -- ++(0,-1) coordinate (e0);
+    \draw (j1) ++(0,-1) coordinate (e1);
+    \draw (j1) to[eC, l_=$C_1$, a^=200$\mu$] (e1);
+
+    \draw (j2) -- ++(0,1) coordinate (e2);
+    \draw (j3) ++(0,1) coordinate (e3);
+    \draw (j3) to[eC, mirror, l^=$C_2$, a_=200$\mu$] (e3);
+
+    \draw (e0) -- (e3);
+    \draw (e1) -- (e2);
+
+    % Resistors on the left of the NOTs with ground
+    \draw (j0) to[R, l_=$R_1$, a^=1.8$k\Omega$] ++(-2, 0) coordinate (j4);
+    \draw (j2) to[R, l_=$R_3$, a^=1.8$k\Omega$] ++(-2, 0) coordinate (j5);
+    \draw (j4) to[short, -*] (j5) -- ++(0,-1) node[rground] {};
+
+    % LED diodes
+    \draw (j1) ++(1,0) coordinate (j1_0) -- (j1);
+    \draw (j1) ++(2.5,0) coordinate (r2) to[leD-, mirror, diodes/scale=0.6, led arrows from anode] (j1_0); %, fill=green
+    
+    \draw (j3) ++(1,0) coordinate (j3_0) -- (j3);
+    \draw (j3) ++(2.5,0) coordinate (r4) to[leD-, mirror, diodes/scale=0.6, led arrows from anode] (j3_0); %, fill=red
+
+    % Resitors on the right of the NOTs
+    \draw (r2) to[R, l^=$R_2$, a_=330$\Omega$] ++(0.75, 0) -- ++(0.5, 0) coordinate (r2a);
+    \draw (r4) to[R, l^=$R_4$, a_=330$\Omega$] ++(0.75, 0) -- ++(0.5, 0) coordinate (r4a);
+
+    % Vcc
+    \draw (r4a) -- (r2a) to[short, *-o] ++(0, 1) node[above] {$+$};
+\end{circuitikz}
+\end{document}
+ 
