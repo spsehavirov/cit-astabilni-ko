@@ -1,0 +1,64 @@
+\documentclass[border=0.2cm]{standalone}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+
+\usepackage{tikz}
+\usepackage{circuitikz}
+\usepackage{siunitx}
+
+\usetikzlibrary{arrows}
+\usetikzlibrary{calc}
+\usetikzlibrary{decorations.pathreplacing,angles,quotes}
+
+\begin{document}
+
+\ctikzset{
+    logic ports=european,
+    logic ports/scale=1.0,
+    tripoles/european not symbol=ieee circle,
+    resistors/scale=0.7,
+    capacitors/scale=0.6
+}
+
+\begin{circuitikz}[european, straight voltages]
+    \draw (0,0) node[not port] (not1) {};
+    \draw (4,0) node[not port] (not2) {}; 
+    \draw (8,0) node[not port] (not3) {}; 
+
+    % Junction points
+    \draw (not1.in) to[short, -*] ++(-0.5, 0) coordinate (c0);
+    \draw ($ (not1.out) !.5! (not2.in) $) coordinate (c1);
+    \draw ($ (not2.out) !.5! (not3.in) $) coordinate (c2);
+    \draw (not3.out) to[short, -*] ++(0.5, 0) coordinate (c3);
+    \draw (c3) to[short, -o] ++(0.5, 0);
+
+    \draw (not1.out) to[short] (c1) to[short] (not2.in);
+    \draw (not2.out) to[short] (c2) to[short, *-] (not3.in);
+
+    % Branch with the Capactitor
+    \draw (c0) -- ++(0, -2) coordinate (x0);
+    \draw (c2) -- ++(0, -2) coordinate (x1);
+    \draw (x0) to[C, l^=$C$, a_=100-200 $\mu$] (x1);
+
+    % Branch with the Resistor
+    \draw (c0) -- ++(0, +2) coordinate (y0);
+    \draw (c3) -- ++(0, +2) coordinate (y1);
+    \draw (y0) to[R, l_=$R$, a^=1.2 - 2.2  $k\Omega$] (y1);
+
+    % I/O inversion labels
+    \draw (not1.in)  node[above] {$L$}; 
+    \draw (not1.out) node[above] {$H$}; 
+    \draw (not2.out) node[above] {$L$};
+    \draw (not3.out) node[above] {$H$}; 
+
+    % Cute CLK wave at the end
+    \draw (c3) ++ (1,-0.25) 
+        -- ++(0.25, 0)    -- ++(0, +0.5) % _|
+            -- ++(0.5, 0) -- ++(0, -0.5) %   ‾|
+            -- ++(0.5, 0) -- ++(0, +0.5) %     _|
+            -- ++(0.5, 0) -- ++(0, -0.5) %       ‾|
+        -- ++(0.25, 0);                  %         _
+    
+\end{circuitikz}
+\end{document}
